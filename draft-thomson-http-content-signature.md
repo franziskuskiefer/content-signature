@@ -26,7 +26,7 @@ normative:
   RFC5226:
   RFC7230:
   RFC7231:
-  X.692:
+  X.962:
      title: "Public Key Cryptography For The Financial Services Industry: The Elliptic Curve Digital Signature Algorithm (ECDSA)"
      author:
        - org: ANSI
@@ -133,7 +133,7 @@ keyid:
 
 p256ecdsa:
 
-: This parameter contains an ECDSA [X.692] signature on the P-256 curve
+: This parameter contains an ECDSA [X.962] signature on the P-256 curve
   [FIPS186].  The signature is produced using the SHA-256 hash [FIPS180-2]. The
   resulting signature is encoded using URL-safe variant of base-64 [RFC4648]
   without padding. No parameters other than `keyid` can be specified along with
@@ -169,7 +169,7 @@ sufficient.
 
 This document defines a new parameter for use with the `Encryption-Key` header
 field.  The `p256ecdsa` parameter conveys an uncompressed P-256 public key
-[X.692] that is encoded using URL-safe variant of base-64 [RFC4648].
+[X.962] that is encoded using URL-safe variant of base-64 [RFC4648].
 
 
 # Security Considerations {#security}
