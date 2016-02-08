@@ -2,7 +2,7 @@
 title: Content-Signature Header Field for HTTP
 abbrev: Content-Signature
 docname: draft-thomson-http-content-signature-latest
-date: 2015
+date: 2016
 category: info
 
 ipr: trust200902
@@ -22,8 +22,10 @@ author:
 
 normative:
   RFC2119:
+  RFC3986:
   RFC4648:
   RFC5226:
+  RFC5280:
   RFC7230:
   RFC7231:
   X.692:
@@ -105,6 +107,25 @@ the value of the signature to that of a checksum; more value is realized when
 the key is established over a separate channel, such as might happen with
 [I-D.reschke-http-oob-encoding].
 
+## PKI Example
+
+The following HTTP/1.1 response is signed with a PKI backed key.  Line wrapping
+is added to fit formatting constraints. It is served from
+https://example.com/helloworld.html.
+
+~~~
+HTTP/1.1 200 OK
+Date: Wed, 17 Jun 2015 17:14:17 GMT
+Content-Length: 15
+Content-Signature: keyuri=https://example.com/helloworld.pem;
+    p256ecdsa=Hil-_2xU6BjQcU6a8nhMCChLr-fkrek5tE6pokWlJb0
+              HkQiryW045vVpljN_xBbF8sTrsWb9MiQLCdYlP1jZtA
+
+Hello, World!
+~~~
+
+The signing key for verification is retrieved from keyurl.
+
 # The Content-Signature Header Field {#csig}
 
 The Content-Signature header field uses the extended ABNF syntax defined in
@@ -131,6 +152,12 @@ keyid:
   This could identify a key that is carried in the Encryption-Key header field.
   This parameter can always be provided together with other parameters.
 
+keyuri:
+
+: This parameter contains a URI [RFC3986] that holds an X.509 [RFC5280]
+  certificate for signature validation. The certificate MUST have the critical
+  extension contentSigning set.
+
 p256ecdsa:
 
 : This parameter contains an ECDSA [X.692] signature on the P-256 curve
@@ -138,7 +165,6 @@ p256ecdsa:
   resulting signature is encoded using URL-safe variant of base-64 [RFC4648]
   without padding. No parameters other than `keyid` can be specified along with
   the `p256ecdsa` parameter.
-
 
 Additional header field values can be defined and registered.  The parameter
 MUST describe how the signature is produced and encoded.
@@ -171,6 +197,13 @@ This document defines a new parameter for use with the `Encryption-Key` header
 field.  The `p256ecdsa` parameter conveys an uncompressed P-256 public key
 [X.692] that is encoded using URL-safe variant of base-64 [RFC4648].
 
+## Signing Certificates {#certificates}
+
+A message MAY include a certificate URI to load a certificate from.
+
+The certificate MUST have the critical extension contentSigning set and MUST be
+matched to a trusted CA on the client in order to be used to verify the
+signature.
 
 # Security Considerations {#security}
 
@@ -230,6 +263,12 @@ The initial contents of this registry are:
 
 * Parameter Name: keyid
 * Purpose: Identify the key that is in use.
+* Reference: {{csig}} of this document
+
+### keyuri
+
+* Parameter Name: keyuri
+* Purpose: Location of certificate to use.
 * Reference: {{csig}} of this document
 
 ### p256ecdsa
