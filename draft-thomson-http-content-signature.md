@@ -22,10 +22,14 @@ author:
 
 normative:
   RFC2119:
+  RFC2818:
   RFC3986:
   RFC4648:
+  RFC4945:
   RFC5226:
+  RFC5246:
   RFC5280:
+  RFC6125:
   RFC7230:
   RFC7231:
   X.692:
@@ -117,7 +121,7 @@ https://example.com/helloworld.html.
 HTTP/1.1 200 OK
 Date: Wed, 17 Jun 2015 17:14:17 GMT
 Content-Length: 15
-Content-Signature: keyuri=https://example.com/helloworld.pem;
+Content-Signature: x5u=https://example.com/helloworld.pem;
     p256ecdsa=Hil-_2xU6BjQcU6a8nhMCChLr-fkrek5tE6pokWlJb0
               HkQiryW045vVpljN_xBbF8sTrsWb9MiQLCdYlP1jZtA
 
@@ -152,11 +156,24 @@ keyid:
   This could identify a key that is carried in the Encryption-Key header field.
   This parameter can always be provided together with other parameters.
 
-keyuri:
+x5u:
 
-: This parameter contains a URI [RFC3986] that holds an X.509 [RFC5280]
-  certificate for signature validation. The certificate MUST have the critical
-  extension contentSigning set.
+: The "x5u" (X.509 URL) Header Parameter is a URI [RFC3986] that refers to a
+  resource for the X.509 public key certificate or certificate chain [RFC5280]
+  corresponding to the key used to produce the content-signature. The identified
+  resource MUST provide a representation of the certificate or certificate chain
+  that conforms to RFC 5280 [RFC5280] in PEM-encoded form, with each certificate
+  delimited as specified in Section 6.1 of RFC 4945 [RFC4945]. The certificate
+  containing the public key corresponding to the key used to produce the
+  content-sogmatire MUST be the first certificate. This MAY be followed by
+  additional certificates, with each subsequent certificate being the one used to
+  certify the previous one. The first certificate MUST have the critical
+  extension contentSigning set {{x509ext}}.
+  The protocol used to acquire the resource MUST
+  provide integrity protection; an HTTP GET request to retrieve the certificate
+  MUST use TLS [RFC5246]; and the identity of the server MUST be validated, as
+  per Section 6 of RFC 6125 [RFC6125]. Also, see Section 8 on TLS requirements.
+  Use of this Header Parameter is OPTIONAL.
 
 p256ecdsa:
 
@@ -199,11 +216,21 @@ field.  The `p256ecdsa` parameter conveys an uncompressed P-256 public key
 
 ## Signing Certificates {#certificates}
 
-A message MAY include a certificate URI to load a certificate from.
+A message MAY include a certificate URI to load a certificate or certificate
+chain from.
 
-The certificate MUST have the critical extension contentSigning set and MUST be
+The certificate MUST have the critical extension ContentSigning set and MUST be
 matched to a trusted CA on the client in order to be used to verify the
 signature.
+
+### ContentSigning Extension {#x509ext}
+
+The ContentSigning extension defines that the key contained in the certificate
+is supposed to be used for content-signatures. This overrides any bits set in
+the KeyUsage extension [RFC5280]. If the ContentSigning extension is present,
+the certificate MUST NOT be used for any other operations. Likewise, a key
+provided with a certificate MUST NOT be used to verify a content-signature if
+the ContentSigning extension is missing.
 
 # Security Considerations {#security}
 
@@ -265,9 +292,9 @@ The initial contents of this registry are:
 * Purpose: Identify the key that is in use.
 * Reference: {{csig}} of this document
 
-### keyuri
+### x5u
 
-* Parameter Name: keyuri
+* Parameter Name: x5u
 * Purpose: Location of certificate to use.
 * Reference: {{csig}} of this document
 
