@@ -220,8 +220,8 @@ A message MAY include a certificate URI to load a certificate or certificate
 chain from.
 
 The certificate MUST have the critical extension ContentSigning set and MUST be
-matched to a trusted CA on the client in order to be used to verify the
-signature.
+matched to a trusted CA per Section 6 of RFC 6125 [RFC6125] on the client in
+order to be used to verify the signature.
 
 ### ContentSigning Extension {#x509ext}
 
@@ -231,6 +231,14 @@ the KeyUsage extension [RFC5280]. If the ContentSigning extension is present,
 the certificate MUST NOT be used for any other operations. Likewise, a key
 provided with a certificate MUST NOT be used to verify a content-signature if
 the ContentSigning extension is missing.
+
+Any failure of verifying a content-signature MUST be reported to the reportURI.
+
+ContentSigning OBJECT IDENTIFIER ::= { 1 2 3 }
+
+ContentSigning ::= SEQUENCE { reportURI   URI }
+
+URI is defined in [RFC3986].
 
 # Security Considerations {#security}
 
