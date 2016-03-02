@@ -154,26 +154,27 @@ keyid:
 
 : This parameter identifies the key that was used to produce the signature.
   This could identify a key that is carried in the Encryption-Key header field.
-  This parameter can always be provided together with other parameters.
+  This parameter can always be provided together with other parameters. Use of
+  this Header Parameter is OPTIONAL.
 
 x5u:
 
 : The "x5u" (X.509 URL) Header Parameter is a URI [RFC3986] that refers to a
   resource for the X.509 public key certificate or certificate chain [RFC5280]
   corresponding to the key used to produce the content-signature. The identified
-  resource MUST provide a representation of the certificate or certificate chain
-  that conforms to RFC 5280 [RFC5280] in PEM-encoded form, with each certificate
-  delimited as specified in Section 6.1 of RFC 4945 [RFC4945]. The certificate
-  containing the public key corresponding to the key used to produce the
-  content-sogmatire MUST be the first certificate. This MAY be followed by
-  additional certificates, with each subsequent certificate being the one used to
-  certify the previous one. The first certificate MUST have the critical
-  extension contentSigning set {{x509ext}}.
-  The protocol used to acquire the resource MUST
-  provide integrity protection; an HTTP GET request to retrieve the certificate
-  MUST use TLS [RFC5246]; and the identity of the server MUST be validated, as
-  per Section 6 of RFC 6125 [RFC6125]. Also, see Section 8 on TLS requirements.
-  Use of this Header Parameter is OPTIONAL.
+  resource MUST provide a representation of the certificate chain including the
+  CA certificate that conforms to RFC 5280 [RFC5280] in PEM-encoded form, with
+  each certificate delimited as specified in Section 6.1 of RFC 4945 [RFC4945].
+  The certificate containing the public key corresponding to the key used to
+  produce the content-signature MUST be the first certificate. This MUST be
+  followed by the certificate chain, with each subsequent certificate being
+  the one used to certify the previous one. The first certificate MUST have
+  the extended key usage extension set to Content-Signing {{x509ext}}.
+  The protocol used to acquire the resource MUST provide integrity protection;
+  an HTTP GET request to retrieve the certificate MUST use TLS [RFC5246]; and
+  the identity of the server MUST be validated, as per Section 6 of RFC 6125
+  [RFC6125]. Also, see Section 8 on TLS requirements. Use of this Header
+  Parameter is OPTIONAL.
 
 p256ecdsa:
 
@@ -216,29 +217,28 @@ field.  The `p256ecdsa` parameter conveys an uncompressed P-256 public key
 
 ## Signing Certificates {#certificates}
 
-A message MAY include a certificate URI to load a certificate or certificate
-chain from.
+A message MAY include a certificate URI to load a certificate chain from.
 
-The certificate MUST have the critical extension ContentSigning set and MUST be
-matched to a trusted CA per Section 6 of RFC 6125 [RFC6125] on the client in
-order to be used to verify the signature.
+The certificate MUST have the contentSigning EKU set and MUST be matched to a
+trusted CA per Section 6 of RFC 6125 [RFC6125] on the client in order to be used
+to verify the signature.
 
-### ContentSigning Extension {#x509ext}
+### Content-Signing EKU {#x509ext}
 
-The ContentSigning extension defines that the key contained in the certificate
+The contentSigning EKU defines that the key contained in the certificate
 is supposed to be used for content-signatures. This overrides any bits set in
-the KeyUsage extension [RFC5280]. If the ContentSigning extension is present,
+the KeyUsage extension [RFC5280]. If the contentSigning EKU is present,
 the certificate MUST NOT be used for any other operations. Likewise, a key
 provided with a certificate MUST NOT be used to verify a content-signature if
-the ContentSigning extension is missing.
+the contentSigning EKU is missing.
 
 Any failure of verifying a content-signature MUST be reported to the reportURI.
 
-ContentSigning OBJECT IDENTIFIER ::= { 1 2 3 }
+  mozilla OBJECT IDENTIFIER  ::=
+              {iso(1) identified-organization(3) dod(6) internet(1)
+               private(4) enterprise(1) 13769}
 
-ContentSigning ::= SEQUENCE { reportURI   URI }
-
-URI is defined in [RFC3986].
+  mozilla-contentSigning  OBJECT IDENTIFIER  ::=  { mozilla 21 }
 
 # Security Considerations {#security}
 
